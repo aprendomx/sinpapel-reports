@@ -1,0 +1,56 @@
+[project]
+name = "sinpapel-reports"
+version = "0.1.0"
+description = "Pluggable template-driven document generation (PDF overlay + DOCX) for the sinpapel ecosystem."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE"]
+authors = [{ name = "Julio Adrián", email = "jadrian.s@gmail.com" }]
+keywords = ["django", "pdf", "docx", "report", "document-generation", "overlay", "sinpapel"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Framework :: Django",
+    "Framework :: Django :: 5.0",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Office/Business",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "Django>=5.0",
+    "sinpapel @ git+ssh://git@github.com/aprendomx/sinpapel.git@v0.7.0",
+    "PyPDF2>=3.0",
+    "reportlab>=4.4",
+    "docxtpl",
+]
+
+[project.optional-dependencies]
+drf = ["djangorestframework>=3.14"]
+dev = ["pytest>=9.0", "pytest-django>=4.12", "build>=1.2", "twine>=5.0"]
+docs = ["mkdocs>=1.6", "mkdocs-material>=9.5", "mkdocstrings[python]>=0.25"]
+
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+# Layout: flat — pyproject.toml + package files at repo root.
+[tool.setuptools]
+packages = [
+    "sinpapel_reports",
+    "sinpapel_reports.schemas",
+    "sinpapel_reports.services",
+    "sinpapel_reports.drf",
+]
+
+[tool.setuptools.package-data]
+sinpapel_reports = ["py.typed"]
+
+[tool.pyright]
+include = ["sinpapel_reports"]
+exclude = ["tests", "docs", "site", ".venv", "__pycache__", ".pytest_cache"]
+pythonVersion = "3.10"
+reportMissingImports = "warning"
+reportAttributeAccessIssue = "warning"

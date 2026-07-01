@@ -1,0 +1,2 @@
+include LICENSE README.md README.es.md CHANGELOG.md py.typed
+recursive-include sinpapel_reports py.typed
