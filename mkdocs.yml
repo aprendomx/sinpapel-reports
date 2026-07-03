@@ -1,0 +1,36 @@
+site_name: sinpapel-reports
+site_description: Pluggable template-driven document generation for the sinpapel ecosystem
+repo_url: https://github.com/aprendomx/sinpapel-reports
+repo_name: aprendomx/sinpapel-reports
+
+theme:
+  name: material
+  palette:
+    primary: teal
+    accent: teal
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - toc.integrate
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: google
+
+nav:
+  - Home: index.md
+  - Usage:
+      - English: usage/en.md
+      - Español: usage/es.md
+  - Development:
+      - Changelog: development/changelog.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.snippets
