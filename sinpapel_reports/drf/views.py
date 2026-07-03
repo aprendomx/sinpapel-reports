@@ -71,6 +71,8 @@ class GenerateView(APIView):
             res = ReportEngine.generar(
                 documento, target, data_source=req.validated_data.get("data_source")
             )
+        except DataSourceNotFoundError as exc:
+            return Response({"detail": str(exc)}, status=404)
         except SinpapelReportsError as exc:
             return Response({"detail": str(exc)}, status=400)
         return Response(

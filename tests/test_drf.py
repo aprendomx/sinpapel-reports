@@ -71,6 +71,23 @@ def test_overlay_config_get_put(client, pdf_documento):
 
 
 @pytest.mark.django_db
+def test_generate_unknown_data_source_returns_404(client, pdf_documento):
+    """DataSourceNotFoundError in GenerateView must map to HTTP 404, not 400."""
+    target = User.objects.create(username="z_404")
+    ct = ContentType.objects.get_for_model(User)
+    resp = client.post(
+        f"/api/documentos/{pdf_documento.pk}/generate/",
+        {
+            "target_content_type": ct.pk,
+            "target_object_id": target.pk,
+            "data_source": "nonexistent_source",
+        },
+        format="json",
+    )
+    assert resp.status_code == 404, resp.content
+
+
+@pytest.mark.django_db
 def test_generate_and_download(client, fake_source, pdf_documento):
     target = User.objects.create(username="z")
     ct = ContentType.objects.get_for_model(User)
