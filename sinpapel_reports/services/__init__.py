@@ -1,4 +1,5 @@
 """Sinpapel Reports — services."""
+
 from __future__ import annotations
 
 from sinpapel_reports.services.docx_renderer import DocxRenderer

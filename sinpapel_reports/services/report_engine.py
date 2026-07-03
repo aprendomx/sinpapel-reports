@@ -4,12 +4,14 @@ Resuelve la fuente de datos, construye el contexto, elige el renderer según
 `tipo_plantilla` y persiste un `InstanciaDocumento`. `generar_paquete` agrupa
 varios targets en un ZIP en memoria.
 """
+
 from __future__ import annotations
 
 import io
 import zipfile
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, ClassVar
 
 from django.conf import settings
 from django.core.files.base import ContentFile
@@ -26,6 +28,8 @@ from sinpapel_reports.services.overlay_renderer import OverlayRenderer
 
 @dataclass(frozen=True)
 class ResultadoGeneracion:
+    """Resultado de generar un documento individual."""
+
     instancia_id: int
     filename: str
     contenido: bytes
@@ -33,13 +37,29 @@ class ResultadoGeneracion:
 
 @dataclass(frozen=True)
 class ResultadoPaquete:
+    """Resultado de generar un paquete ZIP con múltiples documentos."""
+
     generaciones: list[ResultadoGeneracion]
     zip_bytes: bytes
     zip_filename: str
 
 
+RendererCallable = Callable[[str, dict[str, Any], Documento], tuple[bytes, str]]
+
+
 class ReportEngine:
     """Genera documentos a partir de un Documento (plantilla) y un target."""
+
+    _renderers: ClassVar[dict[str, RendererCallable]] = {}
+
+    @classmethod
+    def register_renderer(cls, tipo_plantilla: str, renderer: RendererCallable) -> None:
+        """Registra un renderer para un tipo de plantilla.
+
+        El `renderer` recibe `(path, contexto, documento)` y debe devolver
+        `(contenido_bytes, extension)`.
+        """
+        cls._renderers[tipo_plantilla] = renderer
 
     @staticmethod
     def _resolve_source_name(documento: Documento, data_source: str | None) -> str:
@@ -56,17 +76,16 @@ class ReportEngine:
             f"SINPAPEL_REPORTS_DEFAULT_DATA_SOURCE configurado."
         )
 
-    @staticmethod
-    def _render(documento: Documento, contexto: dict[str, Any]) -> tuple[bytes, str]:
+    @classmethod
+    def _render(cls, documento: Documento, contexto: dict[str, Any]) -> tuple[bytes, str]:
         if not documento.plantilla or not documento.plantilla.name:
             raise UnsupportedTemplateError(f"Documento {documento.pk} sin archivo de plantilla.")
         path = documento.plantilla.path
         stem = slugify(documento.nombre or str(documento.pk))
-        if documento.tipo_plantilla == "PDF":
-            config = OverlayConfig.from_json(documento.configuracion_overlay or {})
-            return OverlayRenderer.render(path, config, contexto), f"{stem}.pdf"
-        if documento.tipo_plantilla == "DOCX":
-            return DocxRenderer.render(path, contexto), f"{stem}.docx"
+        renderer = cls._renderers.get(documento.tipo_plantilla)
+        if renderer is not None:
+            contenido, ext = renderer(path, contexto, documento)
+            return contenido, f"{stem}.{ext}"
         raise UnsupportedTemplateError(
             f"tipo_plantilla '{documento.tipo_plantilla}' no soportado (Documento {documento.pk})."
         )
@@ -80,16 +99,19 @@ class ReportEngine:
         actor: Any = None,
         data_source: str | None = None,
     ) -> ResultadoGeneracion:
+        """Genera un documento para `target` y lo persiste como InstanciaDocumento."""
         source = ReportDataSourceRegistry.get(cls._resolve_source_name(documento, data_source))
         contexto = source.build_context(target)
         contenido, base_filename = cls._render(documento, contexto)
         target_id = getattr(target, "pk", None)
-        stem_part, ext_part = base_filename.rsplit('.', 1)
+        stem_part, ext_part = base_filename.rsplit(".", 1)
         filename = f"{stem_part}_{target_id}.{ext_part}"
         with transaction.atomic():
             instancia = InstanciaDocumento(target=target, documento=documento, actor=actor)
             instancia.save()
-            instancia.archivo_generado.save(filename, ContentFile(contenido, name=filename), save=True)
+            instancia.archivo_generado.save(
+                filename, ContentFile(contenido, name=filename), save=True
+            )
         return ResultadoGeneracion(
             instancia_id=instancia.pk,
             filename=instancia.archivo_generado.name,
@@ -105,18 +127,34 @@ class ReportEngine:
         actor: Any = None,
         data_source: str | None = None,
     ) -> ResultadoPaquete:
+        """Genera un paquete ZIP con documentos para cada target."""
         generaciones: list[ResultadoGeneracion] = []
         zip_buffer = io.BytesIO()
-        with transaction.atomic():
-            with zipfile.ZipFile(zip_buffer, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
-                for target in targets:
-                    res = cls.generar(documento, target, actor=actor, data_source=data_source)
-                    generaciones.append(res)
-                    arcname = res.filename.rsplit("/", 1)[-1]
-                    zf.writestr(arcname, res.contenido)
+        with (
+            transaction.atomic(),
+            zipfile.ZipFile(zip_buffer, mode="w", compression=zipfile.ZIP_DEFLATED) as zf,
+        ):
+            for target in targets:
+                res = cls.generar(documento, target, actor=actor, data_source=data_source)
+                generaciones.append(res)
+                arcname = res.filename.rsplit("/", 1)[-1]
+                zf.writestr(arcname, res.contenido)
         zip_filename = f"{slugify(documento.nombre or str(documento.pk))}_paquete.zip"
         return ResultadoPaquete(
             generaciones=generaciones,
             zip_bytes=zip_buffer.getvalue(),
             zip_filename=zip_filename,
         )
+
+
+def _pdf_renderer(path: str, contexto: dict[str, Any], documento: Documento) -> tuple[bytes, str]:
+    config = OverlayConfig.from_json(documento.configuracion_overlay or {})
+    return OverlayRenderer.render(path, config, contexto), "pdf"
+
+
+def _docx_renderer(path: str, contexto: dict[str, Any], _documento: Documento) -> tuple[bytes, str]:
+    return DocxRenderer.render(path, contexto), "docx"
+
+
+ReportEngine.register_renderer("PDF", _pdf_renderer)
+ReportEngine.register_renderer("DOCX", _docx_renderer)

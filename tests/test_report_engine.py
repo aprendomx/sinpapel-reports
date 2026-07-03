@@ -5,30 +5,14 @@ import io
 import pytest
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
-from PyPDF2 import PdfReader, PdfWriter
-from reportlab.pdfgen import canvas
+from PyPDF2 import PdfReader
 from sinpapel.models import Documento
 
 from sinpapel_reports.data_sources import FakeDataSource
 from sinpapel_reports.exceptions import DataSourceNotFoundError, UnsupportedTemplateError
 from sinpapel_reports.registry import ReportDataSourceRegistry
 from sinpapel_reports.services.report_engine import ReportEngine, ResultadoPaquete
-
-
-def _blank_pdf_bytes(pages: int = 1) -> bytes:
-    buf = io.BytesIO()
-    c = canvas.Canvas(buf, pagesize=(300, 300))
-    for _ in range(pages):
-        c.showPage()
-    c.save()
-    buf.seek(0)
-    reader = PdfReader(buf)
-    writer = PdfWriter()
-    for p in reader.pages:
-        writer.add_page(p)
-    out = io.BytesIO()
-    writer.write(out)
-    return out.getvalue()
+from tests.utils import _blank_pdf_bytes
 
 
 @pytest.fixture
@@ -47,8 +31,11 @@ def pdf_documento(db):
         configuracion_overlay={
             "data_source": "fake",
             "campos_solicitud": {
-                "folio": {"visible": True, "label": "Folio",
-                          "posiciones": [{"x": 20, "y": 40, "page": 1}]},
+                "folio": {
+                    "visible": True,
+                    "label": "Folio",
+                    "posiciones": [{"x": 20, "y": 40, "page": 1}],
+                },
             },
         },
     )
@@ -97,5 +84,19 @@ def test_generar_paquete_returns_zip(fake_source, pdf_documento):
     assert isinstance(res, ResultadoPaquete)
     assert len(res.generaciones) == 2
     import zipfile
+
     zf = zipfile.ZipFile(io.BytesIO(res.zip_bytes))
     assert len(zf.namelist()) == 2
+
+
+@pytest.mark.django_db
+def test_generar_uses_transaction_atomic(fake_source, pdf_documento):
+    """Verifica que generar() envuelve la persistencia en transaction.atomic()."""
+    from unittest.mock import patch
+
+    target = User.objects.create(username="atomic")
+    with patch("django.db.transaction.atomic") as mock_atomic:
+        mock_atomic.return_value.__enter__ = lambda s: s
+        mock_atomic.return_value.__exit__ = lambda *a: None
+        ReportEngine.generar(pdf_documento, target)
+    mock_atomic.assert_called_once()

@@ -5,7 +5,8 @@ from django.apps import apps
 
 def test_version_exposed():
     import sinpapel_reports
-    assert sinpapel_reports.__version__ == "0.1.0"
+
+    assert sinpapel_reports.__version__ == "0.2.0"
 
 
 def test_app_config_loads():
@@ -20,6 +21,7 @@ def test_exception_hierarchy():
         SinpapelReportsError,
         UnsupportedTemplateError,
     )
+
     assert issubclass(DataSourceNotFoundError, SinpapelReportsError)
     assert issubclass(OverlaySchemaError, SinpapelReportsError)
     assert issubclass(UnsupportedTemplateError, SinpapelReportsError)

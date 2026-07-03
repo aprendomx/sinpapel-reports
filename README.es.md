@@ -13,7 +13,7 @@ un ZIP.
 ## Instalación
 
 ```bash
-pip install "sinpapel-reports @ git+ssh://git@github.com/aprendomx/sinpapel-reports.git@v0.1.0"
+pip install "sinpapel-reports @ git+ssh://git@github.com/aprendomx/sinpapel-reports.git@v0.2.0"
 ```
 
 Agrega `"sinpapel_reports"` a `INSTALLED_APPS` (después de `"sinpapel"`).
@@ -51,7 +51,9 @@ Endpoints (relativos al prefijo de montaje):
 | POST | `documentos/<pk>/generate/` | Genera; devuelve `{"instancia_id","filename"}` |
 | GET | `instancias/<pk>/download/` | Descarga el archivo generado como adjunto |
 
-**Auth:** las vistas delegan a `DEFAULT_PERMISSION_CLASSES` del anfitrión; configúralo apropiadamente.
+**Auth:** las vistas exigen `IsAuthenticated` por defecto. Sobreescríbelo vía `settings.SINPAPEL_REPORTS_PERMISSION_CLASSES`.
+
+**Extensibilidad:** registra renderers adicionales con `ReportEngine.register_renderer("XLSX", mi_renderer)`.
 
 ## Licencia
 

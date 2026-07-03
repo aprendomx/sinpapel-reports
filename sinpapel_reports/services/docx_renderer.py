@@ -1,4 +1,5 @@
 """Sinpapel Reports — renderer de plantillas DOCX (docxtpl)."""
+
 from __future__ import annotations
 
 import io
@@ -12,6 +13,7 @@ class DocxRenderer:
 
     @staticmethod
     def render(template_path: str, contexto: dict[str, Any]) -> bytes:
+        """Rellena la plantilla DOCX con el contexto y devuelve los bytes."""
         tpl = DocxTemplate(template_path)
         tpl.render(contexto)
         out = io.BytesIO()

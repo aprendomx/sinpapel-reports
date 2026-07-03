@@ -12,4 +12,5 @@ El proyecto anfitrión DEBE configurar un ``DEFAULT_PERMISSION_CLASSES`` apropia
 permisos. Sin esa configuración, las vistas sirven y mutan documentos por pk
 secuencial sin ninguna restricción de acceso.
 """
+
 from __future__ import annotations

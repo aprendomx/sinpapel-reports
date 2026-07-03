@@ -39,9 +39,16 @@ def test_posicion_alias_backward_compat():
 
 def test_to_json_roundtrip_preserves_tamano_key():
     cfg = OverlayConfig.from_json(
-        {"fuente": {"nombre": "Helvetica", "tamaño": 8},
-         "campos_participantes": {"curp": {"visible": True, "label": "CURP",
-                                            "posiciones": [{"x": 1, "y": 2, "page": 1}]}}}
+        {
+            "fuente": {"nombre": "Helvetica", "tamaño": 8},
+            "campos_participantes": {
+                "curp": {
+                    "visible": True,
+                    "label": "CURP",
+                    "posiciones": [{"x": 1, "y": 2, "page": 1}],
+                }
+            },
+        }
     )
     out = cfg.to_json()
     assert out["fuente"]["tamaño"] == 8
@@ -51,9 +58,11 @@ def test_to_json_roundtrip_preserves_tamano_key():
 
 
 def test_campos_merges_groups_solicitud_first():
-    cfg = OverlayConfig.from_json({
-        "campos_solicitud": {"folio": {"visible": True, "label": "F"}},
-        "campos_participantes": {"curp": {"visible": True, "label": "C"}},
-    })
+    cfg = OverlayConfig.from_json(
+        {
+            "campos_solicitud": {"folio": {"visible": True, "label": "F"}},
+            "campos_participantes": {"curp": {"visible": True, "label": "C"}},
+        }
+    )
     merged = cfg.campos()
     assert list(merged.keys()) == ["folio", "curp"]

@@ -1,4 +1,5 @@
 """Sinpapel Reports — schemas."""
+
 from __future__ import annotations
 
 from sinpapel_reports.schemas.overlay import (

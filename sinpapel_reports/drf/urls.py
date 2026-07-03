@@ -1,4 +1,5 @@
 """Sinpapel Reports — rutas DRF."""
+
 from __future__ import annotations
 
 from django.urls import path

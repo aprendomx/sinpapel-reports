@@ -12,7 +12,7 @@ persisted as `sinpapel.InstanciaDocumento`, optionally bundled as a ZIP.
 ## Install
 
 ```bash
-pip install "sinpapel-reports @ git+ssh://git@github.com/aprendomx/sinpapel-reports.git@v0.1.0"
+pip install "sinpapel-reports @ git+ssh://git@github.com/aprendomx/sinpapel-reports.git@v0.2.0"
 ```
 
 Add `"sinpapel_reports"` to `INSTALLED_APPS` (after `"sinpapel"`).
@@ -50,7 +50,9 @@ Endpoints (relative to the mount prefix):
 | POST | `documentos/<pk>/generate/` | Generate; returns `{"instancia_id","filename"}` |
 | GET | `instancias/<pk>/download/` | Download generated file as attachment |
 
-**Auth:** views delegate to the host's `DEFAULT_PERMISSION_CLASSES`; configure appropriately.
+**Auth:** views require `IsAuthenticated` by default. Override via `settings.SINPAPEL_REPORTS_PERMISSION_CLASSES`.
+
+**Extensibility:** register custom renderers with `ReportEngine.register_renderer("XLSX", my_renderer)`.
 
 ## License
 

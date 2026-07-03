@@ -1,4 +1,5 @@
 """Sinpapel Reports — jerarquía de excepciones."""
+
 from __future__ import annotations
 
 

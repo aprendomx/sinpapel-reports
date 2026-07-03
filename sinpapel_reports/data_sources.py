@@ -4,6 +4,7 @@
 provee el catálogo de campos (paleta del editor) y el contexto de datos para
 renderizar una plantilla contra un `target` arbitrario.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -59,6 +60,7 @@ class FakeDataSource:
     name: ClassVar[str] = "fake"
 
     def get_field_catalog(self) -> list[CampoReporte]:
+        """Devuelve catálogo determinístico para tests."""
         return [
             CampoReporte(key="folio", label="Folio", grupo="solicitud"),
             CampoReporte(key="nombre_grupo", label="Nombre Grupo", grupo="solicitud"),
@@ -66,4 +68,5 @@ class FakeDataSource:
         ]
 
     def build_context(self, target: Any) -> dict[str, Any]:
+        """Construye contexto de ejemplo (sin dependencia del target)."""
         return {"folio": 123, "nombre_grupo": "GRUPO DEMO", "curp": "XAXX010101HDFXXX01"}

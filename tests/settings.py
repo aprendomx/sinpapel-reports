@@ -1,4 +1,5 @@
 """Minimal Django settings for sinpapel-reports test suite."""
+
 import os
 import tempfile
 
@@ -27,6 +28,8 @@ USE_TZ = True
 MEDIA_ROOT = tempfile.mkdtemp(prefix="sinpapel_reports_media_")
 
 CACHES = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}}
+
+MIGRATION_MODULES = {"tests": None}
 
 # Default backend para firma (sinpapel core lo lee de forma lazy).
 SINPAPEL_SIGNATURE_BACKEND = "sinpapel.signing.backends.fake.FakeBackend"
