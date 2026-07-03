@@ -18,6 +18,7 @@ INSTALLED_APPS = [
     "simple_history",
     "sinpapel",
     "sinpapel_reports",
+    "rest_framework",
     "tests",
 ]
 
@@ -29,3 +30,5 @@ CACHES = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"
 
 # Default backend para firma (sinpapel core lo lee de forma lazy).
 SINPAPEL_SIGNATURE_BACKEND = "sinpapel.signing.backends.fake.FakeBackend"
+
+ROOT_URLCONF = "tests.urls"
