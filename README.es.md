@@ -41,6 +41,18 @@ Apunta `Documento.configuracion_overlay["data_source"]` a `"solicitud"` y llama 
 
 Instala el extra `drf` e incluye `"sinpapel_reports.drf.urls"` en tu URLconf.
 
+Endpoints (relativos al prefijo de montaje):
+
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| GET | `field-catalog/?source=<nombre>` | Paleta de campos de la fuente indicada |
+| GET | `documentos/<pk>/overlay-config/` | Lee la configuración de overlay almacenada |
+| PUT | `documentos/<pk>/overlay-config/` | Persiste configuración de overlay (validada) |
+| POST | `documentos/<pk>/generate/` | Genera; devuelve `{"instancia_id","filename"}` |
+| GET | `instancias/<pk>/download/` | Descarga el archivo generado como adjunto |
+
+**Auth:** las vistas delegan a `DEFAULT_PERMISSION_CLASSES` del anfitrión; configúralo apropiadamente.
+
 ## Licencia
 
 GPL-3.0-or-later.

@@ -21,6 +21,7 @@ from sinpapel_reports.drf.serializers import (
 )
 from sinpapel_reports.exceptions import DataSourceNotFoundError, SinpapelReportsError
 from sinpapel_reports.registry import ReportDataSourceRegistry
+from sinpapel_reports.schemas.overlay import OverlayConfig
 from sinpapel_reports.services.report_engine import ReportEngine
 
 
@@ -50,6 +51,13 @@ class OverlayConfigView(APIView):
         documento = get_object_or_404(Documento, pk=pk)
         if not isinstance(request.data, dict):
             return Response({"detail": "El cuerpo debe ser un objeto JSON."}, status=400)
+        try:
+            OverlayConfig.from_json(request.data)
+        except Exception as exc:
+            return Response(
+                {"detail": f"configuracion_overlay inválida: {exc}"},
+                status=400,
+            )
         documento.configuracion_overlay = request.data
         documento.save(update_fields=["configuracion_overlay"])
         return Response(documento.configuracion_overlay)
@@ -88,4 +96,8 @@ class DownloadView(APIView):
         instancia = get_object_or_404(InstanciaDocumento, pk=pk)
         if not instancia.archivo_generado:
             raise Http404("La instancia no tiene archivo generado.")
-        return FileResponse(instancia.archivo_generado.open("rb"))
+        return FileResponse(
+            instancia.archivo_generado.open("rb"),
+            as_attachment=True,
+            filename=instancia.archivo_generado.name.rsplit("/", 1)[-1],
+        )

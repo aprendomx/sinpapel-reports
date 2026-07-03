@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import django
 from django.apps import apps
 
 

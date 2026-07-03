@@ -71,6 +71,14 @@ def test_overlay_config_get_put(client, pdf_documento):
 
 
 @pytest.mark.django_db
+def test_overlay_config_put_rejects_malformed(client, pdf_documento):
+    url = f"/api/documentos/{pdf_documento.pk}/overlay-config/"
+    # campos_solicitud must be a dict; a string breaks OverlayConfig.from_json.
+    resp = client.put(url, {"campos_solicitud": "not-a-dict"}, format="json")
+    assert resp.status_code == 400
+
+
+@pytest.mark.django_db
 def test_generate_unknown_data_source_returns_404(client, pdf_documento):
     """DataSourceNotFoundError in GenerateView must map to HTTP 404, not 400."""
     target = User.objects.create(username="z_404")

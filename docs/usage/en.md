@@ -74,11 +74,20 @@ urlpatterns = [
 ]
 ```
 
-Available endpoints:
+Available endpoints (relative to the mount prefix, e.g. `/reports/`):
 
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | `/reports/documentos/<pk>/field-catalog/` | List available fields for the document's data source |
-| GET | `/reports/documentos/<pk>/overlay-config/` | Retrieve current overlay configuration |
-| POST | `/reports/documentos/<pk>/generate/` | Generate a document and return its URL |
-| GET | `/reports/instancias/<pk>/download/` | Download a generated document |
+| GET | `field-catalog/?source=<name>` | Return `[{key, label, grupo}]` for the named data source |
+| GET | `documentos/<pk>/overlay-config/` | Return the stored `configuracion_overlay` JSON |
+| PUT | `documentos/<pk>/overlay-config/` | Persist a new overlay config (validated); returns the saved config |
+| POST | `documentos/<pk>/generate/` | Generate a document; body: `{target_content_type, target_object_id, data_source?}`; returns `{"instancia_id", "filename"}` |
+| GET | `instancias/<pk>/download/` | Stream the generated file as a download attachment |
+
+## Security / auth
+
+The DRF views in this package set **no** `permission_classes` of their own.
+They delegate fully to the host project's `DEFAULT_PERMISSION_CLASSES`.
+The host **must** configure an appropriate default (e.g. `[IsAuthenticated]`)
+or wrap the `include(...)` with its own permissions; without it, the views
+serve and mutate documents by sequential pk with no access restriction.

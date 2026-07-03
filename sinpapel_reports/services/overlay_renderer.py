@@ -29,6 +29,8 @@ class OverlayRenderer:
     @staticmethod
     def _build_overlays(config: OverlayConfig, contexto: dict[str, Any], reader: PdfReader) -> list[Any]:
         total_pages = len(reader.pages)
+        if total_pages == 0:
+            return []
         font_name = config.fuente.nombre or "Helvetica"
         font_size = config.fuente.tamano or 10
 
@@ -90,7 +92,7 @@ class OverlayRenderer:
                     page = pos.get("page", 1)
                     if x is None or y is None:
                         continue
-                    idx = page - 1
+                    idx = int(page) - 1
                     if idx < 0 or idx >= total_pages:
                         continue
                     c_info = canvases[idx]
@@ -104,7 +106,7 @@ class OverlayRenderer:
             buf.seek(0)
             try:
                 ov = PdfReader(buf)
-                overlays.append(ov.pages[0] if len(ov.pages) > 0 else None)
+                overlays.append(ov.pages[0] if ov.pages else None)
             except Exception:
                 overlays.append(None)
         return overlays

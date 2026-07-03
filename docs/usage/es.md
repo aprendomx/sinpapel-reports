@@ -74,11 +74,20 @@ urlpatterns = [
 ]
 ```
 
-Endpoints disponibles:
+Endpoints disponibles (relativos al prefijo de montaje, p. ej. `/reports/`):
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
-| GET | `/reports/documentos/<pk>/field-catalog/` | Lista los campos disponibles de la fuente de datos del documento |
-| GET | `/reports/documentos/<pk>/overlay-config/` | Obtiene la configuración de superposición actual |
-| POST | `/reports/documentos/<pk>/generate/` | Genera un documento y devuelve su URL |
-| GET | `/reports/instancias/<pk>/download/` | Descarga un documento generado |
+| GET | `field-catalog/?source=<nombre>` | Devuelve `[{key, label, grupo}]` para la fuente de datos indicada |
+| GET | `documentos/<pk>/overlay-config/` | Devuelve el JSON `configuracion_overlay` almacenado |
+| PUT | `documentos/<pk>/overlay-config/` | Persiste una nueva configuración de overlay (validada); devuelve la config guardada |
+| POST | `documentos/<pk>/generate/` | Genera un documento; body: `{target_content_type, target_object_id, data_source?}`; devuelve `{"instancia_id", "filename"}` |
+| GET | `instancias/<pk>/download/` | Descarga el archivo generado como adjunto |
+
+## Seguridad / autenticación
+
+Las vistas DRF de este paquete **no** definen `permission_classes` propias.
+Delegan completamente a `DEFAULT_PERMISSION_CLASSES` del proyecto anfitrión.
+El anfitrión **debe** configurar un default apropiado (p. ej. `[IsAuthenticated]`)
+o envolver el `include(...)` con sus propios permisos; de lo contrario, las vistas
+sirven y mutan documentos por pk secuencial sin ninguna restricción de acceso.

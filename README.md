@@ -40,6 +40,18 @@ Point a `Documento.configuracion_overlay["data_source"]` at `"solicitud"` and ca
 
 Install the `drf` extra and `include("sinpapel_reports.drf.urls")`.
 
+Endpoints (relative to the mount prefix):
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `field-catalog/?source=<name>` | Field palette for the named data source |
+| GET | `documentos/<pk>/overlay-config/` | Read stored overlay config |
+| PUT | `documentos/<pk>/overlay-config/` | Persist overlay config (validated) |
+| POST | `documentos/<pk>/generate/` | Generate; returns `{"instancia_id","filename"}` |
+| GET | `instancias/<pk>/download/` | Download generated file as attachment |
+
+**Auth:** views delegate to the host's `DEFAULT_PERMISSION_CLASSES`; configure appropriately.
+
 ## License
 
 GPL-3.0-or-later.
