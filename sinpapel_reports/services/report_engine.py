@@ -58,9 +58,9 @@ class ReportEngine:
 
     @staticmethod
     def _render(documento: Documento, contexto: dict[str, Any]) -> tuple[bytes, str]:
-        path = getattr(documento.plantilla, "path", None)
-        if not path:
+        if not documento.plantilla or not documento.plantilla.name:
             raise UnsupportedTemplateError(f"Documento {documento.pk} sin archivo de plantilla.")
+        path = documento.plantilla.path
         stem = slugify(documento.nombre or str(documento.pk))
         if documento.tipo_plantilla == "PDF":
             config = OverlayConfig.from_json(documento.configuracion_overlay or {})
@@ -84,7 +84,8 @@ class ReportEngine:
         contexto = source.build_context(target)
         contenido, base_filename = cls._render(documento, contexto)
         target_id = getattr(target, "pk", None)
-        filename = f"{base_filename.rsplit('.', 1)[0]}_{target_id}.{base_filename.rsplit('.', 1)[1]}"
+        stem_part, ext_part = base_filename.rsplit('.', 1)
+        filename = f"{stem_part}_{target_id}.{ext_part}"
         with transaction.atomic():
             instancia = InstanciaDocumento(target=target, documento=documento, actor=actor)
             instancia.save()
@@ -113,7 +114,6 @@ class ReportEngine:
                     generaciones.append(res)
                     arcname = res.filename.rsplit("/", 1)[-1]
                     zf.writestr(arcname, res.contenido)
-        zip_buffer.seek(0)
         zip_filename = f"{slugify(documento.nombre or str(documento.pk))}_paquete.zip"
         return ResultadoPaquete(
             generaciones=generaciones,

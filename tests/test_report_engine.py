@@ -10,7 +10,7 @@ from reportlab.pdfgen import canvas
 from sinpapel.models import Documento
 
 from sinpapel_reports.data_sources import FakeDataSource
-from sinpapel_reports.exceptions import DataSourceNotFoundError
+from sinpapel_reports.exceptions import DataSourceNotFoundError, UnsupportedTemplateError
 from sinpapel_reports.registry import ReportDataSourceRegistry
 from sinpapel_reports.services.report_engine import ReportEngine, ResultadoPaquete
 
@@ -72,6 +72,21 @@ def test_generar_unknown_source_raises(pdf_documento):
     target = User.objects.create(username="t2")
     with pytest.raises(DataSourceNotFoundError):
         ReportEngine.generar(pdf_documento, target)
+
+
+@pytest.mark.django_db
+def test_generar_missing_plantilla_raises_unsupported(fake_source, db):
+    """Documento sin archivo adjunto debe levantar UnsupportedTemplateError, no ValueError."""
+    doc = Documento.objects.create(
+        nombre="Sin Archivo",
+        valor="sin-archivo",
+        tipo_plantilla="PDF",
+        configuracion_overlay={"data_source": "fake"},
+    )
+    # plantilla field left empty — no .save() call
+    target = User.objects.create(username="t_nofile")
+    with pytest.raises(UnsupportedTemplateError):
+        ReportEngine.generar(doc, target)
 
 
 @pytest.mark.django_db
