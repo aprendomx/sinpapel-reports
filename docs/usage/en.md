@@ -3,7 +3,7 @@
 ## Installation
 
 ```bash
-pip install "sinpapel-reports @ git+ssh://git@github.com/aprendomx/sinpapel-reports.git@v0.2.0"
+pip install sinpapel-reports
 ```
 
 Add `"sinpapel_reports"` to `INSTALLED_APPS` (after `"sinpapel"`).
