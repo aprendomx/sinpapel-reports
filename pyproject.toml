@@ -21,7 +21,7 @@ classifiers = [
 ]
 dependencies = [
     "Django>=5.0",
-    "sinpapel @ git+ssh://git@github.com/aprendomx/sinpapel.git@v0.7.0",
+    "sinpapel>=0.7.0",
     "PyPDF2>=3.0",
     "reportlab>=4.4",
     "docxtpl",

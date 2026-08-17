@@ -11,3 +11,4 @@ dist/
 .pyright/
 site/
 .coverage
+.DS_Store

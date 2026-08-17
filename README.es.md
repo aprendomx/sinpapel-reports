@@ -13,7 +13,7 @@ un ZIP.
 ## Instalación
 
 ```bash
-pip install "sinpapel-reports @ git+ssh://git@github.com/aprendomx/sinpapel-reports.git@v0.2.0"
+pip install sinpapel-reports
 ```
 
 Agrega `"sinpapel_reports"` a `INSTALLED_APPS` (después de `"sinpapel"`).
