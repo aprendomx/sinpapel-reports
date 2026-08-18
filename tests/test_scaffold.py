@@ -6,7 +6,7 @@ from django.apps import apps
 def test_version_exposed():
     import sinpapel_reports
 
-    assert sinpapel_reports.__version__ == "0.2.0"
+    assert sinpapel_reports.__version__ == "0.2.1"
 
 
 def test_app_config_loads():
