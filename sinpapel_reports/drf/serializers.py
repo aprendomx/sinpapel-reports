@@ -9,7 +9,7 @@ class CampoReporteSerializer(serializers.Serializer):
     """Serializa un CampoReporte para la paleta del editor."""
 
     key = serializers.CharField()
-    label = serializers.CharField()
+    label = serializers.CharField()  # type: ignore[assignment]  # colisiona con Field.label en los stubs
     grupo = serializers.CharField()
 
 

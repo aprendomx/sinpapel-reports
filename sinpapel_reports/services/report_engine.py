@@ -67,10 +67,10 @@ class ReportEngine:
             return data_source
         config = documento.configuracion_overlay or {}
         if config.get("data_source"):
-            return config["data_source"]
+            return str(config["data_source"])
         default = getattr(settings, "SINPAPEL_REPORTS_DEFAULT_DATA_SOURCE", None)
         if default:
-            return default
+            return str(default)
         raise DataSourceNotFoundError(
             f"Documento {documento.pk} no declara data_source y no hay "
             f"SINPAPEL_REPORTS_DEFAULT_DATA_SOURCE configurado."
@@ -114,7 +114,7 @@ class ReportEngine:
             )
         return ResultadoGeneracion(
             instancia_id=instancia.pk,
-            filename=instancia.archivo_generado.name,
+            filename=instancia.archivo_generado.name or filename,
             contenido=contenido,
         )
 

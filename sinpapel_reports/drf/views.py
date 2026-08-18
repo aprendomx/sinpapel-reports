@@ -44,7 +44,7 @@ def _check_target_ownership(request, target) -> bool:
     for attr in ("owner", "usuario", "creado_por"):
         owner = getattr(target, attr, None)
         if owner is not None:
-            return owner == request.user
+            return bool(owner == request.user)
     return True
 
 
@@ -138,5 +138,5 @@ class DownloadView(BaseReportView):
         return FileResponse(
             instancia.archivo_generado.open("rb"),
             as_attachment=True,
-            filename=instancia.archivo_generado.name.rsplit("/", 1)[-1],
+            filename=(instancia.archivo_generado.name or "archivo").rsplit("/", 1)[-1],
         )
