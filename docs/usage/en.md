@@ -16,6 +16,7 @@ on startup via `AppConfig.ready()`.
 ```python
 from sinpapel_reports.data_sources import CampoReporte, register_data_source
 
+
 @register_data_source
 class SolicitudDataSource:
     name = "solicitud"
@@ -102,6 +103,7 @@ memory (`zip_bytes`) — serve it yourself (e.g. in an `HttpResponse`).
 def xlsx_renderer(path: str, contexto: dict, documento) -> tuple[bytes, str]:
     ...
     return contenido_bytes, "xlsx"
+
 
 ReportEngine.register_renderer("XLSX", xlsx_renderer)
 ```

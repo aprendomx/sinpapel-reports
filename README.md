@@ -24,11 +24,14 @@ Declare a `reports.py` in any installed app:
 ```python
 from sinpapel_reports.data_sources import CampoReporte, register_data_source
 
+
 @register_data_source
 class SolicitudDataSource:
     name = "solicitud"
+
     def get_field_catalog(self):
         return [CampoReporte(key="folio", label="Folio")]
+
     def build_context(self, target):
         return {"folio": target.id}
 ```

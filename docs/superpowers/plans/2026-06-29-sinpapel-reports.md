@@ -165,6 +165,7 @@ cp /Users/jadrians/aprendo/sinpapel/LICENSE /Users/jadrians/aprendo/sinpapel-rep
 
 ```python
 """Sinpapel Reports — generación de documentos por plantilla (PDF overlay + DOCX)."""
+
 from __future__ import annotations
 
 __version__ = "0.1.0"
@@ -174,6 +175,7 @@ __version__ = "0.1.0"
 
 ```python
 """Sinpapel Reports — jerarquía de excepciones."""
+
 from __future__ import annotations
 
 
@@ -197,6 +199,7 @@ class OverlaySchemaError(SinpapelReportsError):
 
 ```python
 """Sinpapel Reports — App config."""
+
 from __future__ import annotations
 
 from django.apps import AppConfig
@@ -238,6 +241,7 @@ class TestsConfig(AppConfig):
 `tests/settings.py`:
 ```python
 """Minimal Django settings for sinpapel-reports test suite."""
+
 import os
 import tempfile
 
@@ -274,6 +278,7 @@ SINPAPEL_SIGNATURE_BACKEND = "sinpapel.signing.backends.fake.FakeBackend"
 
 ```python
 """sinpapel-reports — pytest fixtures comunes."""
+
 from __future__ import annotations
 
 import pytest
@@ -283,6 +288,7 @@ import pytest
 def _clear_report_registry_each_test():
     """Aísla el registry de data sources entre tests."""
     from sinpapel_reports.registry import ReportDataSourceRegistry
+
     ReportDataSourceRegistry.clear()
     yield
     ReportDataSourceRegistry.clear()
@@ -293,6 +299,7 @@ def _clear_report_registry_each_test():
 Task-1 stub `tests/conftest.py`:
 ```python
 """sinpapel-reports — pytest fixtures comunes."""
+
 from __future__ import annotations
 ```
 
@@ -307,6 +314,7 @@ from django.apps import apps
 
 def test_version_exposed():
     import sinpapel_reports
+
     assert sinpapel_reports.__version__ == "0.1.0"
 
 
@@ -322,6 +330,7 @@ def test_exception_hierarchy():
         SinpapelReportsError,
         UnsupportedTemplateError,
     )
+
     assert issubclass(DataSourceNotFoundError, SinpapelReportsError)
     assert issubclass(OverlaySchemaError, SinpapelReportsError)
     assert issubclass(UnsupportedTemplateError, SinpapelReportsError)
@@ -336,6 +345,7 @@ Expected: 3 passed. (App loads → `autodiscover_modules("reports")` finds `test
 
 ```python
 """Test host app — registra data sources de prueba. Poblado en Task 3."""
+
 from __future__ import annotations
 ```
 
@@ -410,9 +420,16 @@ def test_posicion_alias_backward_compat():
 
 def test_to_json_roundtrip_preserves_tamano_key():
     cfg = OverlayConfig.from_json(
-        {"fuente": {"nombre": "Helvetica", "tamaño": 8},
-         "campos_participantes": {"curp": {"visible": True, "label": "CURP",
-                                            "posiciones": [{"x": 1, "y": 2, "page": 1}]}}}
+        {
+            "fuente": {"nombre": "Helvetica", "tamaño": 8},
+            "campos_participantes": {
+                "curp": {
+                    "visible": True,
+                    "label": "CURP",
+                    "posiciones": [{"x": 1, "y": 2, "page": 1}],
+                }
+            },
+        }
     )
     out = cfg.to_json()
     assert out["fuente"]["tamaño"] == 8
@@ -422,10 +439,12 @@ def test_to_json_roundtrip_preserves_tamano_key():
 
 
 def test_campos_merges_groups_solicitud_first():
-    cfg = OverlayConfig.from_json({
-        "campos_solicitud": {"folio": {"visible": True, "label": "F"}},
-        "campos_participantes": {"curp": {"visible": True, "label": "C"}},
-    })
+    cfg = OverlayConfig.from_json(
+        {
+            "campos_solicitud": {"folio": {"visible": True, "label": "F"}},
+            "campos_participantes": {"curp": {"visible": True, "label": "C"}},
+        }
+    )
     merged = cfg.campos()
     assert list(merged.keys()) == ["folio", "curp"]
 ```
@@ -445,6 +464,7 @@ inmutables. Preserva las claves históricas (`campos_solicitud`,
 `campos_participantes`, `tamaño`, alias `posicion`) por compatibilidad con
 configuraciones ya guardadas en producción.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field, replace
@@ -514,12 +534,18 @@ class OverlayConfig:
         )
         # Alias retro-compat: `posicion` -> `posicion_base`.
         pos_raw = data.get("posicion_base", data.get("posicion", {})) or {}
-        base = replace(PosicionBase(), **{
-            k: pos_raw[k] for k in ("x_left", "y_top_offset", "line_height") if k in pos_raw
-        })
+        base = replace(
+            PosicionBase(),
+            **{k: pos_raw[k] for k in ("x_left", "y_top_offset", "line_height") if k in pos_raw},
+        )
         return cls(
-            campos_solicitud={k: _campo_from_json(v) for k, v in (data.get("campos_solicitud", {}) or {}).items()},
-            campos_participantes={k: _campo_from_json(v) for k, v in (data.get("campos_participantes", {}) or {}).items()},
+            campos_solicitud={
+                k: _campo_from_json(v) for k, v in (data.get("campos_solicitud", {}) or {}).items()
+            },
+            campos_participantes={
+                k: _campo_from_json(v)
+                for k, v in (data.get("campos_participantes", {}) or {}).items()
+            },
             posicion_base=base,
             fuente=fuente,
             data_source=data.get("data_source"),
@@ -528,7 +554,9 @@ class OverlayConfig:
     def to_json(self) -> dict[str, Any]:
         out: dict[str, Any] = {
             "campos_solicitud": {k: _campo_to_json(v) for k, v in self.campos_solicitud.items()},
-            "campos_participantes": {k: _campo_to_json(v) for k, v in self.campos_participantes.items()},
+            "campos_participantes": {
+                k: _campo_to_json(v) for k, v in self.campos_participantes.items()
+            },
             "posicion_base": {
                 "x_left": self.posicion_base.x_left,
                 "y_top_offset": self.posicion_base.y_top_offset,
@@ -552,6 +580,7 @@ class OverlayConfig:
 
 ```python
 """Sinpapel Reports — schemas."""
+
 from __future__ import annotations
 
 from sinpapel_reports.schemas.overlay import (
@@ -621,8 +650,10 @@ def test_decorator_registers_instance():
     @register_data_source
     class _Demo:
         name = "demo"
+
         def get_field_catalog(self):
             return [CampoReporte(key="x", label="X")]
+
         def build_context(self, target):
             return {"x": 1}
 
@@ -641,6 +672,7 @@ def test_autodiscovery_registered_fake_via_tests_reports(django_db_setup):
     # tests/reports.py registers FakeDataSource on app ready/autodiscover.
     # (django_db_setup triggers app loading.)
     from sinpapel_reports.registry import ReportDataSourceRegistry as R
+
     # Re-import path: the conftest clears registry per-test, so register here.
     R.register(FakeDataSource())
     assert "fake" in R.names()
@@ -662,6 +694,7 @@ Singleton module-level que cataloga ReportDataSource por su `name`. Las apps
 host registran las suyas en un módulo `reports.py` (autodiscovered en
 SinpapelReportsConfig.ready()).
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -715,6 +748,7 @@ ReportDataSourceRegistry = _RegistryImpl()
 provee el catálogo de campos (paleta del editor) y el contexto de datos para
 renderizar una plantilla contra un `target` arbitrario.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -784,6 +818,7 @@ class FakeDataSource:
 
 ```python
 """sinpapel-reports — pytest fixtures comunes."""
+
 from __future__ import annotations
 
 import pytest
@@ -792,6 +827,7 @@ import pytest
 @pytest.fixture(autouse=True)
 def _clear_report_registry_each_test():
     from sinpapel_reports.registry import ReportDataSourceRegistry
+
     ReportDataSourceRegistry.clear()
     yield
     ReportDataSourceRegistry.clear()
@@ -801,6 +837,7 @@ def _clear_report_registry_each_test():
 
 ```python
 """Test host app — registra la FakeDataSource vía autodiscover."""
+
 from __future__ import annotations
 
 from sinpapel_reports.data_sources import FakeDataSource, register_data_source
@@ -874,12 +911,17 @@ def test_render_preserves_page_count(tmp_path):
 def test_render_stamps_value_at_position(tmp_path):
     tpl = tmp_path / "t.pdf"
     _blank_pdf(str(tpl), pages=1)
-    cfg = OverlayConfig.from_json({
-        "campos_solicitud": {
-            "folio": {"visible": True, "label": "Folio",
-                      "posiciones": [{"x": 20, "y": 40, "page": 1}]},
-        },
-    })
+    cfg = OverlayConfig.from_json(
+        {
+            "campos_solicitud": {
+                "folio": {
+                    "visible": True,
+                    "label": "Folio",
+                    "posiciones": [{"x": 20, "y": 40, "page": 1}],
+                },
+            },
+        }
+    )
     out = OverlayRenderer.render(str(tpl), cfg, {"folio": "ABC-999"})
     text = PdfReader(io.BytesIO(out)).pages[0].extract_text() or ""
     assert "ABC-999" in text
@@ -888,12 +930,17 @@ def test_render_stamps_value_at_position(tmp_path):
 def test_invisible_field_not_stamped(tmp_path):
     tpl = tmp_path / "t.pdf"
     _blank_pdf(str(tpl), pages=1)
-    cfg = OverlayConfig.from_json({
-        "campos_solicitud": {
-            "folio": {"visible": False, "label": "Folio",
-                      "posiciones": [{"x": 20, "y": 40, "page": 1}]},
-        },
-    })
+    cfg = OverlayConfig.from_json(
+        {
+            "campos_solicitud": {
+                "folio": {
+                    "visible": False,
+                    "label": "Folio",
+                    "posiciones": [{"x": 20, "y": 40, "page": 1}],
+                },
+            },
+        }
+    )
     out = OverlayRenderer.render(str(tpl), cfg, {"folio": "HIDDEN"})
     text = PdfReader(io.BytesIO(out)).pages[0].extract_text() or ""
     assert "HIDDEN" not in text
@@ -914,6 +961,7 @@ Expected: FAIL — `ModuleNotFoundError: sinpapel_reports.services.overlay_rende
 
 ```python
 """Sinpapel Reports — renderer de overlay PDF (ReportLab + PyPDF2)."""
+
 from __future__ import annotations
 
 import io
@@ -942,7 +990,9 @@ class OverlayRenderer:
         return out.getvalue()
 
     @staticmethod
-    def _build_overlays(config: OverlayConfig, contexto: dict[str, Any], reader: PdfReader) -> list[Any]:
+    def _build_overlays(
+        config: OverlayConfig, contexto: dict[str, Any], reader: PdfReader
+    ) -> list[Any]:
         total_pages = len(reader.pages)
         font_name = config.fuente.nombre or "Helvetica"
         font_size = config.fuente.tamano or 10
@@ -1029,6 +1079,7 @@ class OverlayRenderer:
 
 ```python
 """Sinpapel Reports — services."""
+
 from __future__ import annotations
 
 from sinpapel_reports.services.docx_renderer import DocxRenderer
@@ -1053,6 +1104,7 @@ __all__ = [
 Task-4 `services/__init__.py`:
 ```python
 """Sinpapel Reports — services."""
+
 from __future__ import annotations
 
 from sinpapel_reports.services.overlay_renderer import OverlayRenderer
@@ -1119,6 +1171,7 @@ Expected: FAIL — `ModuleNotFoundError: sinpapel_reports.services.docx_renderer
 
 ```python
 """Sinpapel Reports — renderer de plantillas DOCX (docxtpl)."""
+
 from __future__ import annotations
 
 import io
@@ -1143,6 +1196,7 @@ class DocxRenderer:
 
 ```python
 """Sinpapel Reports — services."""
+
 from __future__ import annotations
 
 from sinpapel_reports.services.docx_renderer import DocxRenderer
@@ -1232,8 +1286,11 @@ def pdf_documento(db):
         configuracion_overlay={
             "data_source": "fake",
             "campos_solicitud": {
-                "folio": {"visible": True, "label": "Folio",
-                          "posiciones": [{"x": 20, "y": 40, "page": 1}]},
+                "folio": {
+                    "visible": True,
+                    "label": "Folio",
+                    "posiciones": [{"x": 20, "y": 40, "page": 1}],
+                },
             },
         },
     )
@@ -1267,6 +1324,7 @@ def test_generar_paquete_returns_zip(fake_source, pdf_documento):
     assert isinstance(res, ResultadoPaquete)
     assert len(res.generaciones) == 2
     import zipfile
+
     zf = zipfile.ZipFile(io.BytesIO(res.zip_bytes))
     assert len(zf.namelist()) == 2
 ```
@@ -1285,6 +1343,7 @@ Resuelve la fuente de datos, construye el contexto, elige el renderer según
 `tipo_plantilla` y persiste un `InstanciaDocumento`. `generar_paquete` agrupa
 varios targets en un ZIP en memoria.
 """
+
 from __future__ import annotations
 
 import io
@@ -1365,11 +1424,15 @@ class ReportEngine:
         contexto = source.build_context(target)
         contenido, base_filename = cls._render(documento, contexto)
         target_id = getattr(target, "pk", None)
-        filename = f"{base_filename.rsplit('.', 1)[0]}_{target_id}.{base_filename.rsplit('.', 1)[1]}"
+        filename = (
+            f"{base_filename.rsplit('.', 1)[0]}_{target_id}.{base_filename.rsplit('.', 1)[1]}"
+        )
         with transaction.atomic():
             instancia = InstanciaDocumento(target=target, documento=documento, actor=actor)
             instancia.save()
-            instancia.archivo_generado.save(filename, ContentFile(contenido, name=filename), save=True)
+            instancia.archivo_generado.save(
+                filename, ContentFile(contenido, name=filename), save=True
+            )
         return ResultadoGeneracion(
             instancia_id=instancia.pk,
             filename=instancia.archivo_generado.name,
@@ -1407,6 +1470,7 @@ class ReportEngine:
 
 ```python
 """Sinpapel Reports — services."""
+
 from __future__ import annotations
 
 from sinpapel_reports.services.docx_renderer import DocxRenderer
@@ -1522,7 +1586,9 @@ def fake_source():
 @pytest.fixture
 def pdf_documento(db):
     doc = Documento.objects.create(
-        nombre="Oficio Demo", valor="oficio", tipo_plantilla="PDF",
+        nombre="Oficio Demo",
+        valor="oficio",
+        tipo_plantilla="PDF",
         configuracion_overlay={"data_source": "fake"},
     )
     doc.plantilla.save("demo.pdf", ContentFile(_blank_pdf_bytes(), name="demo.pdf"), save=True)
@@ -1574,6 +1640,7 @@ Expected: FAIL — `ModuleNotFoundError: sinpapel_reports.drf.urls`.
 
 ```python
 """Sinpapel Reports — serializers DRF."""
+
 from __future__ import annotations
 
 from rest_framework import serializers
@@ -1599,6 +1666,7 @@ class GenerateRequestSerializer(serializers.Serializer):
 Expone lo que la SPA `sinpapel-reports-designer` consumirá: catálogo de campos,
 lectura/escritura de configuracion_overlay, generación y descarga.
 """
+
 from __future__ import annotations
 
 from dataclasses import asdict
@@ -1690,12 +1758,14 @@ class DownloadView(APIView):
 `sinpapel_reports/drf/__init__.py`:
 ```python
 """Sinpapel Reports — capa DRF opcional (requiere el extra `drf`)."""
+
 from __future__ import annotations
 ```
 
 `sinpapel_reports/drf/urls.py`:
 ```python
 """Sinpapel Reports — rutas DRF."""
+
 from __future__ import annotations
 
 from django.urls import path

@@ -54,9 +54,7 @@ class OverlayRenderer:
             try:
                 c.setFont(font_name, font_size)
             except Exception:
-                logger.warning(
-                    "Fuente %s no disponible en ReportLab; usando Helvetica.", font_name
-                )
+                logger.warning("Fuente %s no disponible en ReportLab; usando Helvetica.", font_name)
                 c.setFont("Helvetica", 10)
 
         campos = config.campos()

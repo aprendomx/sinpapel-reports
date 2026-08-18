@@ -30,9 +30,7 @@ from sinpapel_reports.services.report_engine import ReportEngine
 
 def _default_permission_classes() -> list[type]:
     """Devuelve la lista de permission classes; sobreescribible vía settings."""
-    return getattr(
-        settings, "SINPAPEL_REPORTS_PERMISSION_CLASSES", [IsAuthenticated]
-    )
+    return getattr(settings, "SINPAPEL_REPORTS_PERMISSION_CLASSES", [IsAuthenticated])
 
 
 def _check_target_ownership(request, target) -> bool:

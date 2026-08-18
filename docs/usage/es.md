@@ -16,6 +16,7 @@ autodescubre al inicio a través de `AppConfig.ready()`.
 ```python
 from sinpapel_reports.data_sources import CampoReporte, register_data_source
 
+
 @register_data_source
 class SolicitudDataSource:
     name = "solicitud"
@@ -105,6 +106,7 @@ reemplaza uno existente) con:
 def xlsx_renderer(path: str, contexto: dict, documento) -> tuple[bytes, str]:
     ...
     return contenido_bytes, "xlsx"
+
 
 ReportEngine.register_renderer("XLSX", xlsx_renderer)
 ```
