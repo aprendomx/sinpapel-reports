@@ -6,7 +6,7 @@ Pluggable, template-driven document generation (PDF overlay + DOCX) for the
 ## What it does
 
 Render per-record documents by stamping live data onto a PDF template at pixel
-coordinates (ReportLab + PyPDF2) or filling a DOCX template (docxtpl). Output is
+coordinates (ReportLab + pypdf) or filling a DOCX template (docxtpl). Output is
 persisted as `sinpapel.InstanciaDocumento`, optionally bundled as a ZIP.
 
 ## Install

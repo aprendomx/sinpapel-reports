@@ -6,7 +6,7 @@ al ecosistema [sinpapel](https://github.com/aprendomx/sinpapel).
 ## Qué hace
 
 Renderiza documentos por registro estampando datos en vivo sobre una plantilla PDF en
-coordenadas de píxel (ReportLab + PyPDF2) o rellenando una plantilla DOCX (docxtpl).
+coordenadas de píxel (ReportLab + pypdf) o rellenando una plantilla DOCX (docxtpl).
 La salida se persiste como `sinpapel.InstanciaDocumento`, opcionalmente empaquetada en
 un ZIP.
 

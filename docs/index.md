@@ -6,7 +6,7 @@ Pluggable, template-driven document generation (PDF overlay + DOCX) for the
 ## Overview
 
 `sinpapel-reports` provides a decoupled framework for rendering per-record documents
-by stamping live data onto PDF templates at pixel coordinates (ReportLab + PyPDF2) or
+by stamping live data onto PDF templates at pixel coordinates (ReportLab + pypdf) or
 filling DOCX templates (docxtpl). Output is persisted as `sinpapel.InstanciaDocumento`.
 
 ## Quick links

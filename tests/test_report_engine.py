@@ -5,7 +5,7 @@ import io
 import pytest
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
-from PyPDF2 import PdfReader
+from pypdf import PdfReader
 from sinpapel.models import Documento
 
 from sinpapel_reports.data_sources import FakeDataSource

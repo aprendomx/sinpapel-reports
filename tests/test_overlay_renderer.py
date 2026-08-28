@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import io
 
-from PyPDF2 import PdfReader
+from pypdf import PdfReader
 
 from sinpapel_reports.schemas.overlay import OverlayConfig
 from sinpapel_reports.services.overlay_renderer import OverlayRenderer

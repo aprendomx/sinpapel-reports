@@ -1,6 +1,6 @@
 [project]
 name = "sinpapel-reports"
-version = "0.2.3"
+version = "0.2.4"
 description = "Pluggable template-driven document generation (PDF overlay + DOCX) for the sinpapel ecosystem."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -22,7 +22,7 @@ classifiers = [
 dependencies = [
     "Django>=5.0",
     "sinpapel~=0.8.0",
-    "PyPDF2>=3.0",
+    "pypdf>=5.1",
     "reportlab>=4.4",
     "docxtpl",
 ]
@@ -64,7 +64,6 @@ django_find_project = false
 python_files = "test_*.py"
 pythonpath = "."
 filterwarnings = [
-    "ignore::DeprecationWarning:PyPDF2",
 ]
 addopts = "--strict-markers"
 

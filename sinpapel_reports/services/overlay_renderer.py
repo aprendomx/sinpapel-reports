@@ -1,4 +1,4 @@
-"""Sinpapel Reports — renderer de overlay PDF (ReportLab + PyPDF2)."""
+"""Sinpapel Reports — renderer de overlay PDF (ReportLab + pypdf)."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ import io
 import logging
 from typing import Any
 
-from PyPDF2 import PdfReader, PdfWriter
+from pypdf import PdfReader, PdfWriter
 from reportlab.pdfgen import canvas
 
 from sinpapel_reports.schemas.overlay import OverlayConfig
@@ -21,12 +21,15 @@ class OverlayRenderer:
     def render(template_path: str, config: OverlayConfig, contexto: dict[str, Any]) -> bytes:
         """Estampa el contexto sobre la plantilla PDF según config y devuelve bytes."""
         reader = PdfReader(template_path)
-        writer = PdfWriter()
         overlays = OverlayRenderer._build_overlays(config, contexto, reader)
-        for i, page in enumerate(reader.pages):
+        # `clone_from` adjunta las páginas al writer ANTES de fusionarlas.
+        # Fusionar sobre páginas sueltas y añadirlas después está deprecado en
+        # pypdf (se elimina en 7.0) y su propia documentación lo describe como
+        # poco fiable.
+        writer = PdfWriter(clone_from=template_path)
+        for i, page in enumerate(writer.pages):
             if i < len(overlays) and overlays[i] is not None:
                 page.merge_page(overlays[i])
-            writer.add_page(page)
         out = io.BytesIO()
         writer.write(out)
         return out.getvalue()
